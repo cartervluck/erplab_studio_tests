@@ -188,15 +188,15 @@ redrawERP(); % run second time to sort sizes?
             'HelpFcn', @onDemoHelp );
         gui.ViewContainer = uicontainer( ...
             'Parent', gui.ViewPanel );
-        gui.ViewSlider = uix.VBox( ...
-            'Parent', gui.ViewBox);
+        %gui.ViewSlider = uix.VBox( ...
+        %    'Parent', gui.ViewBox);
         
         gui.panelscroll = uix.ScrollingPanel(...
             'Parent', gui.tabERP);
         
         % + Adjust the main layout
         set( gui.tabERP, 'Widths', [-4, 300]  ); % Viewpanel and settings panel
-        set( gui.ViewBox, 'Heights', [-1 5] );  % Container and slider
+        %set( gui.ViewBox, 'Heights', [-1 25] );  % Container and slider
         %set( gui.ViewSlider, 'Heights', [35 35] );
         
         
@@ -214,14 +214,14 @@ redrawERP(); % run second time to sort sizes?
         %             'Callback', @onListSelection);
         
         % + Create the time slider
-        gui.timesl = uicontrol('Style', 'slider', ...
-            'Parent', gui.ViewSlider, ...
-            'min', data.timemin, 'max', data.timemax, ...
-            'value', data.timefirst, ...
-            'Callback', @timeslmove);
-        gui.timesltext = uicontrol('Style', 'text', ...
-            'Parent', gui.ViewSlider, ...
-            'String', num2str(data.timefirst));
+%         gui.timesl = uicontrol('Style', 'slider', ...
+%             'Parent', gui.ViewSlider, ...
+%             'min', data.timemin, 'max', data.timemax, ...
+%             'value', data.timefirst, ...
+%             'Callback', @timeslmove);
+%         gui.timesltext = uicontrol('Style', 'text', ...
+%             'Parent', gui.ViewSlider, ...
+%             'String', num2str(data.timefirst));
         
         %gui.HelpButton = uicontrol( 'Style', 'PushButton', ...
         %   'Parent', controlLayout, ...
@@ -247,66 +247,68 @@ redrawERP(); % run second time to sort sizes?
         gui.panel_fonts = 12;
         
         % + Create the settings window panels
-        settingLayout = uix.VBox('Parent', gui.panelscroll);
+        gui.settingLayout = uiextras.VBox('Parent', gui.panelscroll);
         gui.panel{1} = uiextras.BoxPanel( ...
-            'Parent', settingLayout, ...
+            'Parent', gui.settingLayout, ...
             'Title', 'Data selector', ...
             'FontSize',gui.panel_fonts, 'FontWeight', 'bold');
         gui.panelSizes(1) = 250;
         
-        gui.panel{2} = uiextras.BoxPanel( ...
-            'Parent', settingLayout, ...
-            'FontSize',gui.panel_fonts, 'Title', 'Page view');
-        gui.panelSizes(2) = 150;
+        gui.panel{2} = datasetsGUI(gui.settingLayout,gui.panel_fonts);
+        gui.panelSizes(2) = 250;
+        
+%         gui.panel{2} = uiextras.BoxPanel( ...
+%             'Parent', gui.settingLayout, ...
+%             'FontSize',gui.panel_fonts, 'Title', 'Page view');
+%         gui.panelSizes(2) = 150;
         
         gui.panel{3} = uiextras.BoxPanel( ...
-            'Parent', settingLayout, ...
+            'Parent', gui.settingLayout, ...
             'FontSize',gui.panel_fonts, 'Title', 'Plotting options');
         gui.panelSizes(3) = 300;
         
-        gui.panel{4} = uix.BoxPanel(          ...
-            'Parent'    , settingLayout     , ...
+        gui.panel{4} = uiextras.BoxPanel(          ...
+            'Parent'    , gui.settingLayout     , ...
             'FontSize'  , gui.panel_fonts   , ...
             'Title'     , 'History'         );
         gui.panelSizes(4) = 250;
         %% 'TitleHeight_', 50);
         
         gui.panel{5} = uiextras.BoxPanel( ...
-            'Parent', settingLayout, ...
+            'Parent', gui.settingLayout, ...
             'FontSize',gui.panel_fonts, 'Title', 'Filtering');
         gui.panelSizes(5) = 250;
         
         
         gui.panel{6} = uiextras.BoxPanel( ...
-            'Parent', settingLayout, ...
+            'Parent', gui.settingLayout, ...
             'FontSize',gui.panel_fonts, 'Title', 'Spectral Tools');
         gui.panelSizes(6) = 250;
         
-        gui.panel{7} = datasetsGUI(settingLayout,gui.panel_fonts);
-        gui.panelSizes(7) = 250;
         
         
         
         
         
         
-        set( settingLayout, 'Heights', gui.panelSizes);
+        set( gui.settingLayout, 'Heights', gui.panelSizes);
         gui.panelscroll.Heights = sum(gui.panelSizes);
         
         
         
-        %% Hook up the minimize callback
+        %% Hook up the minimize callback and IsMinimized
         set( gui.panel{1}, 'MinimizeFcn', {@nMinimize, 1} );
         set( gui.panel{2}, 'MinimizeFcn', {@nMinimize, 2} );
         set( gui.panel{3}, 'MinimizeFcn', {@nMinimize, 3} );
         set( gui.panel{4}, 'MinimizeFcn', {@nMinimize, 4} );
         set( gui.panel{5}, 'MinimizeFcn', {@nMinimize, 5} );
         set( gui.panel{6}, 'MinimizeFcn', {@nMinimize, 6} );
-        set( gui.panel{7}, 'MinimizeFcn', {@nMinimize, 7} );
+        %set( gui.panel{7}, 'MinimizeFcn', {@nMinimize, 7} );
         
         %% Populate the settings windows
         % Try a 4x4 grid for data selection (set thru set sizes below)
-        gui.DataSelGrid = uiextras.Grid('Parent', gui.panel{1}, 'Spacing',1);
+        gui.DataSelBox = uiextras.VBox('Parent', gui.panel{1}, 'Spacing',1);
+        gui.DataSelGrid = uiextras.Grid('Parent', gui.DataSelBox, 'Spacing',1);
         % Columns are filled first. First column:
         uiextras.Empty('Parent', gui.DataSelGrid); % 1A
         %uicontrol('Style','text','Parent', gui.DataSelGrid,'String','Select all'); % 2A
@@ -345,9 +347,7 @@ redrawERP(); % run second time to sort sizes?
         %gui.SetN = uicontrol('Parent', gui.DataSelGrid,'Style','edit','String', '1'); % 4D
         % Set grid sizes
         set(gui.DataSelGrid, 'ColumnSizes',[60 -2 -2 -2],'RowSizes',[30 -3 20]);
-        
-        gui.pagegridbg = uibuttongroup('Visible','off','SelectionChangedFcn',@pagegridbg_sel,'Parent',gui.panel{2});
-        
+                
         %%  Page view grid - 4x4
 %         gui.pagegrid = uiextras.Grid('Parent', gui.panel{2}, 'Spacing',1);
 %         % Columns are filled first. First column:
@@ -372,8 +372,9 @@ redrawERP(); % run second time to sort sizes?
 %         pagegrid_p3 = uicontrol(gui.pagegridbg,  'Parent', gui.pagegrid,'Style','radiobutton','Value',1); %4D
 %         % Set grid sizes
 %         set(gui.pagegrid, 'ColumnSizes',[60 -2 -2 -2],'RowSizes',[30 -3 -3 -3]);
-        gui.pagesel = uicontrol('Parent', gui.panel{2}, 'Style', 'popupmenu','String',{'CHANNELS with BINS overlay','BINS with CHANNELS overlay'},'callback',@pageviewchanged);
+        gui.pagesel = uicontrol('Parent', gui.DataSelBox, 'Style', 'popupmenu','String',{'CHANNELS with BINS overlay','BINS with CHANNELS overlay'},'callback',@pageviewchanged);
         
+        set( gui.DataSelBox, 'Sizes', [-1 25] );
         
         %% Plotting options grid - 3x6?
         
@@ -496,7 +497,7 @@ redrawERP(); % run second time to sort sizes?
         %set( gui.HelpButton, 'String', ['Electrodes starting from ',disp_elecs] );
         
         % Time
-        set( gui.timesltext, 'String', data.timefirst);
+        %set( gui.timesltext, 'String', data.timefirst);
         
         set(plotops.rows, 'String',data.elec_n);
         
@@ -663,14 +664,14 @@ redrawERP(); % run second time to sort sizes?
                 end
             end
             
-            legend_here = legend(pb_ax(i),'show');
-            set(legend_here,'Units','pixels','EdgeColor','none','Color','none');
+            %legend_here = legend(pb_ax(i),'show');
+            %set(legend_here,'Units','pixels','EdgeColor','none','Color','none');
             
             %set above as % leg_str = sprintf('\n\n%s',S.chan_label{i});
             if data.bins_chans == 0
-                set( pb(i), 'Sizes', [30 -1 1] );
+                set( pb(i), 'Sizes', [30 -1] );
             else
-                set( pb(i), 'Sizes', [70 -1 1] );
+                set( pb(i), 'Sizes', [70 -1] );
             end
         end
         
@@ -716,7 +717,18 @@ redrawERP(); % run second time to sort sizes?
         
     end % redrawDemo
 
-
+    function panel_heights()
+        n = numel(gui.panel);
+        heights = zeros(size(gui.panel));
+        for i = 1:n
+            if gui.panel{i}.IsMinimized
+                heights(i) = 25;
+            else
+                heights(i) = gui.panelSizes(i);
+            end
+        end
+        set(gui.settingLayout,'Sizes',heights);
+    end
 %
 % Callback subfunctions
 %
@@ -922,12 +934,16 @@ redrawERP(); % run second time to sort sizes?
         pheightmax = 100;
         pos = get( gui.panel{whichpanel}, 'Position' );
         minned = gui.panel{whichpanel}.IsMinimized;
+        szs = get( gui.settingLayout, 'Sizes' );
         if minned
             set( gui.panel{whichpanel}, 'IsMinimized', false);
-            
+            szs(whichpanel) = gui.panelSizes(whichpanel);
         else
             set( gui.panel{whichpanel}, 'IsMinimized', true);
+            szs(whichpanel) = 25;
         end
+        
+        set( gui.settingLayout, 'Sizes', szs );
         
 %                  updateInterface();
 %                  redrawERP();
@@ -1061,5 +1077,4 @@ redrawERP(); % run second time to sort sizes?
             gui.lp_halfpow.Enable = 'Off';
         end
     end
-end  %EOF
-
+end %EOF
