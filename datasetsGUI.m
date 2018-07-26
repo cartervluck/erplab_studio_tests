@@ -18,11 +18,11 @@ global box;
 global ALLERP;
 if nargin == 0
     fig = figure(); % Parent figure
-    box = uiextras.BoxPanel('Parent', fig, 'Title', 'Datasets', 'Padding', 5); % Create boxpanel
+    box = uiextras.BoxPanel('Parent', fig, 'Title', 'ERPsets', 'Padding', 5); % Create boxpanel
 elseif nargin == 1
-    box = uiextras.BoxPanel('Parent', varargin{1}, 'Title', 'Datasets', 'Padding', 5);
+    box = uiextras.BoxPanel('Parent', varargin{1}, 'Title', 'ERPsets', 'Padding', 5);
 else
-    box = uiextras.BoxPanel('Parent', varargin{1}, 'Title', 'Datasets', 'Padding', 5, 'FontSize', varargin{2});
+    box = uiextras.BoxPanel('Parent', varargin{1}, 'Title', 'ERPsets', 'Padding', 5, 'FontSize', varargin{2});
 end
 
 getDatasets() % Get datasets from ALLERP

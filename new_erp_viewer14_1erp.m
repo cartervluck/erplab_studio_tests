@@ -384,9 +384,9 @@ redrawERP(); % run second time to sort sizes?
         uicontrol('Style','text','Parent', gui.time_sel,'String','Time range:'); % 1A
         plotops.time_all = uicontrol('Style','checkbox','Parent', gui.time_sel,'String','All','callback',@time_all,'Value',1); % 2A
         uicontrol('Style','text','Parent', gui.time_sel,'String','Start');
-        plotops.time_min = uicontrol('Style', 'edit','Parent',gui.time_sel,'String',num2str(data.min),'callback',@min_time_change);
+        plotops.time_min = uicontrol('Style', 'edit','Parent',gui.time_sel,'String',num2str(data.min),'callback',@min_time_change,'Enable','off');
         uicontrol('Style','text','Parent', gui.time_sel,'String','End');
-        plotops.time_min = uicontrol('Style', 'edit','Parent',gui.time_sel,'String',num2str(data.max),'callback',@max_time_change);
+        plotops.time_max = uicontrol('Style', 'edit','Parent',gui.time_sel,'String',num2str(data.max),'callback',@max_time_change,'Enable','off');
         
         set(gui.time_sel, 'Sizes', [70 -1 -1 -1 -1 -1])
         
@@ -516,6 +516,8 @@ redrawERP(); % run second time to sort sizes?
 
     function redrawERP()
         % Draw a demo ERP into the axes provided
+        
+        gui.ViewPanel.BackgroundColor = 'r';
         
         if data.bins_chans == 0
             elec_n = data.elec_n;
@@ -701,7 +703,6 @@ redrawERP(); % run second time to sort sizes?
         S.fontsize = 13;
         %gui.ViewAxes.XLabel.String = 'Time (ms)';
         %gui.ViewAxes.XLabel.FontSize = S.fontsize;
-        
         
         
         
@@ -1014,6 +1015,21 @@ redrawERP(); % run second time to sort sizes?
             data.bins_chans = 1;
         end
         redrawERP();
+    end
+    
+    function time_all( src, ~ )
+        if src.Value == 1
+            plotops.time_min.Enable = 'off';
+            plotops.time_max.Enable = 'off';
+            data.min = ERP.times(1);
+            plotops.time_min.String = data.min;
+            data.max = ERP.times(end);
+            plotops.time_max.String = data.max;
+            redrawERP();
+        else
+            plotops.time_min.Enable = 'on';
+            plotops.time_max.Enable = 'on';
+        end
     end
 
     function min_time_change( src, ~ )
