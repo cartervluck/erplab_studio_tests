@@ -94,14 +94,9 @@ dsnums = zeros([1 r]); % Empty array for dataset numbers
 dots = zeros([1 r]); % Empty array for dots
 dsnames = zeros([1 r]); % Empty array for dataset names
 for x = 1:r
-    
-    if cell2mat(datasets(x,2)) == selectedData
-      	panels(x) = uipanel(panelsv2box,'BackgroundColor','b', 'ButtonDownFcn', @selectdata,'Position',[25*(x-1),5,100,25]);
-    else
-      	panels(x) = uipanel(panelsv2box,'BackgroundColor','w', 'ButtonDownFcn', @selectdata,'Position',[25*(x-1),5,100,25]);
-    end
+    panels(x) = uipanel(panelsv2box, 'ButtonDownFcn', @selectdata,'Position',[25*(x-1),5,100,25]);
     cbs(x) = uicontrol(panels(x), 'Style', 'checkbox', 'Position', [5 5 15 15]);
-    dsnums(x) = uicontrol(panels(x), 'Style', 'text', 'String', num2str(cell2mat(datasets(x,2))), 'Position', [25, 5, 25, 15]);
+    dsnums(x) = uicontrol('Parent', panels(x), 'Style', 'text', 'String', num2str(cell2mat(datasets(x,2))), 'Position', [25, 5, 25, 15], 'Enable', 'Inactive', 'ButtonDownFcn', @selectdata);
     % Code for getting how many dots to have
     dotsneeded = 1;
     if havedots
@@ -117,7 +112,7 @@ for x = 1:r
         dots(x) = uicontrol(panels(x), 'Style', 'text',...
             'String', repmat(' . ',1,dotsneeded),...
             'Position', [50, 5, dotsneeded*11, 15],...
-            'FontWeight', 'bold');
+            'FontWeight', 'bold', 'Enable', 'Inactive', 'ButtonDownFcn', @selectdata);
     else
         dotsneeded = 0;
     end
@@ -125,7 +120,20 @@ for x = 1:r
     dsnames(x) = uicontrol('Parent', panels(x), 'Style', 'text',...
         'String',cell2mat(datasets(x,1)),...
         'Position', [startX 5 1000 15],...
-        'HorizontalAlignment', 'left', 'Enable', 'Inactive'); % Have it call a function, pass in x
+        'HorizontalAlignment', 'left', 'Enable', 'Inactive', 'ButtonDownFcn', @selectdata); % Have it call a function, pass in x
+    if cell2mat(datasets(x,2)) == selectedData
+      	set(panels(x),'BackgroundColor',[0.1 0.1 0.7]);
+        set(dsnums(x),'BackgroundColor',[0.1 0.1 0.7],'ForegroundColor','w');
+        set(dots(x),'BackgroundColor',[0.1 0.1 0.7],'ForegroundColor','w');
+        set(dsnames(x),'BackgroundColor',[0.1 0.1 0.7],'ForegroundColor','w');
+        set(cbs(x),'BackgroundColor',[0.1 0.1 0.7]);
+    else
+      	set(panels(x),'BackgroundColor',[0.9 0.9 0.9]);
+        set(dsnums(x),'BackgroundColor',[0.9 0.9 0.9],'ForegroundColor','k');
+        set(dots(x),'BackgroundColor',[0.9 0.9 0.9],'ForegroundColor','k');
+        set(dsnames(x),'BackgroundColor',[0.9 0.9 0.9],'ForegroundColor','k');
+        set(cbs(x),'BackgroundColor',[0.9 0.9 0.9]);
+    end
 end
 
 set( panelsv2box, 'Sizes', ones([1 r])*25 );
@@ -425,11 +433,17 @@ disp(data);
 function selectdata(source,event)
 global datasets;
 global selectedData;
-global ERP;
-global CURRENTERP;
 % Check if changes have been made to current ERPset before switching,
 % prompt user to save. Hash history file, compare
-for j = source.Children'
+
+i = 0;
+if strcmp(source.Type,'uipanel')
+    i = source;
+else
+    i = source.Parent;
+end
+
+for j = i.Children'
     if strcmp(j.Style,'text')
         if all(ismember(j.String, '0123456789'))
             selectedData = str2double(j.String);
