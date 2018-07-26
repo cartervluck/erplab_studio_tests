@@ -517,8 +517,6 @@ redrawERP(); % run second time to sort sizes?
     function redrawERP()
         % Draw a demo ERP into the axes provided
         
-        gui.ViewPanel.BackgroundColor = 'r';
-        
         if data.bins_chans == 0
             elec_n = data.elec_n;
             max_elec_n = ERP.nchan;
@@ -595,17 +593,28 @@ redrawERP(); % run second time to sort sizes?
                 ndata = data.elecs_shown;
             end
             
+            tmin = (round((data.min-ERP.times(1))/2)+1);
+            tmax = (numel(ERP.times)+round((data.max-ERP.times(end))/2));
+            
+            if tmin < 1
+                tmin = 1;
+            end
+            
+            if tmax > numel(ERP.times)
+                tmax = numel(ERP.times);
+            end
+            
             sf = ERP.times(2)-ERP.times(1);
             
-            plot_erp_data = nan(numel(ERP.times)+round((data.max-ERP.times(end))/2)+round((ERP.times(1)-data.min)/2),numel(ndata));
+            plot_erp_data = nan(tmax-tmin+1);
             
             if data.bins_chans == 0
                 for i_bin = 1:numel(ndata)
-                    plot_erp_data(:,i_bin) = ERP.bindata(data.elecs_shown(i),(round((data.min-ERP.times(1))/2)+1):(numel(ERP.times)+round((data.max-ERP.times(end))/2)),data.bins(i_bin))'*gui.posup; % + (i+1)*S.display_offset;
+                    plot_erp_data(:,i_bin) = ERP.bindata(data.elecs_shown(i),tmin:tmax,data.bins(i_bin))'*gui.posup; % + (i+1)*S.display_offset;
                 end
             else
                 for i_bin = 1:numel(ndata)
-                    plot_erp_data(:,i_bin) = ERP.bindata(data.elecs_shown(i_bin),(round((data.min-ERP.times(1))/2)+1):(numel(ERP.times)+round((data.max-ERP.times(end))/2)),data.bins(i))'*gui.posup; % + (i+1)*S.display_offset;
+                    plot_erp_data(:,i_bin) = ERP.bindata(data.elecs_shown(i_bin),tmin:tmax,data.bins(i))'*gui.posup; % + (i+1)*S.display_offset;
                 end
             end
             
@@ -623,7 +632,7 @@ redrawERP(); % run second time to sort sizes?
             
             pb_ax(i) = axes('Parent', pb(i),'Color','none');
             set(pb_ax(i),'XLim',[data.min data.max]);
-            pb_here = plot(pb_ax(i),ERP.times((round((data.min-ERP.times(1))/2)+1):(numel(ERP.times)+round((data.max-ERP.times(end))/2))),plot_erp_data);
+            pb_here = plot(pb_ax(i),ERP.times(tmin:tmax),plot_erp_data);
             
             newlim = [];
             if gui.posup == 1
@@ -1017,13 +1026,26 @@ redrawERP(); % run second time to sort sizes?
         redrawERP();
     end
     
+    %
+    % Case: -2 to 10. Plot: -5 to 10
+    % Case: 26 to 466. Plot: 25 to 470
+    % Case: -14 to 63. Plot: -15 to 65
+    % Case: -120 to 128. Plot: -120 to 130
+    % Case: -200 to 798. Plot: -200 to 800
+    %
+    % Conclusion: Max and Min should be non-zero multiples of 5
+    %
+    % Method: min / 5, floor, * 5
+    % Method: max / 5, ceil, * 5
+    %
+
     function time_all( src, ~ )
         if src.Value == 1
             plotops.time_min.Enable = 'off';
             plotops.time_max.Enable = 'off';
-            data.min = ERP.times(1);
+            data.min = floor(ERP.times(1)/5)*5;
             plotops.time_min.String = data.min;
-            data.max = ERP.times(end);
+            data.max = ceil(ERP.times(end)/5)*5;
             plotops.time_max.String = data.max;
             redrawERP();
         else

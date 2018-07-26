@@ -80,14 +80,14 @@ global havedots;
 % Sort the datasets!!!
 datasets = sortdata(datasets);
 vBox = uiextras.VBox('Parent', box, 'Spacing', 5); % VBox for everything
-%panelshbox = uiextras.HBox('Parent', vBox, 'Spacing', 5);
-panelshbox = uix.ScrollingPanel('Parent', vBox);
+panelshbox = uiextras.HBox('Parent', vBox, 'Spacing', 5);
+%panelshbox = uix.ScrollingPanel('Parent', vBox);
 panelsv2box = uiextras.VBox('Parent',panelshbox,'Spacing',5);
-%sp = uipanel(panelshbox);
-%set( panelshbox, 'Sizes', [-1 17] );
-%s = uicontrol('Style','Slider','Parent',sp,...
-%      'Units','normalized','Position',[1 0 0.05 1],...
-%      'Value',1,'Callback',{@slider_callback1,panelsv2box},'Min',0,'Max',1);
+sp = uipanel(panelshbox);
+set( panelshbox, 'Sizes', [-1 17] );
+s = uicontrol('Style','Slider','Parent',sp,...
+      'Units','normalized','Position',[1 0 0.05 1],...
+      'Value',1,'Callback',{@slider_callback1,panelsv2box},'Min',0,'Max',1);
 panels = zeros([1 r]); % Empty array for panels
 cbs = zeros([1 r]); % Empty array for checkboxes
 dsnums = zeros([1 r]); % Empty array for dataset numbers
