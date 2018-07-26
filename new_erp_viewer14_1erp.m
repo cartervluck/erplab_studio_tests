@@ -117,8 +117,8 @@ redrawERP(); % run second time to sort sizes?
             'bin_n'         , bin_n, ...
             'matlab_ver'    , matlab_ver, ...
             'bins_chans'    , 0, ...
-            'min'           , ERP.times(1), ...
-            'max'           , ERP.times(end));
+            'min'           , floor(ERP.times(1)/5)*5, ...
+            'max'           , ceil(ERP.times(end)/5)*5);
         
         
     end  % handleData
@@ -593,8 +593,8 @@ redrawERP(); % run second time to sort sizes?
                 ndata = data.elecs_shown;
             end
             
-            tmin = (round((data.min-ERP.times(1))/2)+1);
-            tmax = (numel(ERP.times)+round((data.max-ERP.times(end))/2));
+            tmin = (floor((data.min-ERP.times(1))/2)+1);
+            tmax = (numel(ERP.times)+ceil((data.max-ERP.times(end))/2));
             
             if tmin < 1
                 tmin = 1;

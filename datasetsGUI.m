@@ -120,17 +120,23 @@ for x = 1:r
     dsnames(x) = uicontrol('Parent', panels(x), 'Style', 'text',...
         'String',cell2mat(datasets(x,1)),...
         'Position', [startX 5 1000 15],...
-        'HorizontalAlignment', 'left', 'Enable', 'Inactive', 'ButtonDownFcn', @selectdata); % Have it call a function, pass in x
+        'HorizontalAlignment', 'left',...
+        'Enable', 'Inactive', 'ButtonDownFcn', @selectdata); % Have it call a function, pass in x
     if cell2mat(datasets(x,2)) == selectedData
-      	set(panels(x),'BackgroundColor',[0.1 0.1 0.7]);
-        set(dsnums(x),'BackgroundColor',[0.1 0.1 0.7],'ForegroundColor','w');
-        set(dots(x),'BackgroundColor',[0.1 0.1 0.7],'ForegroundColor','w');
-        set(dsnames(x),'BackgroundColor',[0.1 0.1 0.7],'ForegroundColor','w');
-        set(cbs(x),'BackgroundColor',[0.1 0.1 0.7]);
+        blue = [0.1 0.25 0.5];
+      	set(panels(x),'BackgroundColor',blue);
+        set(dsnums(x),'BackgroundColor',blue,'ForegroundColor','w');
+        if havedots
+            set(dots(x),'BackgroundColor',blue,'ForegroundColor','w');
+        end
+        set(dsnames(x),'BackgroundColor',blue,'ForegroundColor','w');
+        set(cbs(x),'BackgroundColor',blue);
     else
       	set(panels(x),'BackgroundColor',[0.9 0.9 0.9]);
         set(dsnums(x),'BackgroundColor',[0.9 0.9 0.9],'ForegroundColor','k');
-        set(dots(x),'BackgroundColor',[0.9 0.9 0.9],'ForegroundColor','k');
+        if havedots
+            set(dots(x),'BackgroundColor',[0.9 0.9 0.9],'ForegroundColor','k');
+        end
         set(dsnames(x),'BackgroundColor',[0.9 0.9 0.9],'ForegroundColor','k');
         set(cbs(x),'BackgroundColor',[0.9 0.9 0.9]);
     end
