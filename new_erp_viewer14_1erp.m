@@ -954,7 +954,7 @@ redrawERP(); % run second time to sort sizes?
         end
         
         set( gui.settingLayout, 'Sizes', szs );
-        
+        gui.panelscroll.Heights = sum(szs);
 %                  updateInterface();
 %                  redrawERP();
 %         set( box, 'Sizes', s );
