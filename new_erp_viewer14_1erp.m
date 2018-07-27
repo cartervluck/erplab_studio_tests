@@ -60,11 +60,11 @@ catch
     return
 end
 
-
+plotops = struct();
 % Initialize data and interface
 data = handleData(ERP);
 gui = createInterface(ERP);
-plotops;
+%plotops;
 
 % Update the GUI with current data
 updateInterface();
@@ -390,24 +390,34 @@ redrawERP(); % run second time to sort sizes?
         
         set(gui.time_sel, 'Sizes', [70 -1 -1 -1 -1 -1])
         
+        gui.ticks = uiextras.HBox('Parent',gui.plotop,'Spacing',1);
+        uicontrol('Style','text','Parent', gui.ticks,'String','Time ticks:'); % 1B
+        plotops.timet_auto = uicontrol('Style','checkbox','Parent', gui.ticks,'String','Auto','callback',@timet_auto,'Value',1); % 2B
+        uicontrol('Style','text','Parent', gui.ticks,'String','Low');
+        plotops.timet_low = uicontrol('Style', 'edit','Parent',gui.ticks,'String',num2str(data.min),'callback',@low_ticks_change,'Enable','off');
+        uicontrol('Style','text','Parent', gui.ticks,'String','High');
+        plotops.timet_high = uicontrol('Style', 'edit','Parent',gui.ticks,'String',num2str(data.max),'callback',@high_ticks_change,'Enable','off');
+        uicontrol('Style','text','Parent', gui.ticks,'String','Step');
+        plotops.timet_high = uicontrol('Style', 'edit','Parent',gui.ticks,'String',num2str(data.max-data.min),'callback',@ticks_step_change,'Enable','off');
+        
+        set(gui.ticks, 'Sizes', [70 50 -1 -1 -1 -1 -1 -1]);
+        
         gui.plotop_grid = uiextras.Grid('Parent',gui.plotop,'Spacing',1);
         % Columns are filled first. First column:
-        uicontrol('Style','text','Parent', gui.plotop_grid,'String','Time ticks:'); % 1B
         uicontrol('Style','text','Parent', gui.plotop_grid,'String','Y scale:'); % 1C
         uicontrol('Style','text','Parent', gui.plotop_grid,'String','Number of rows:'); % 1D
         uicontrol('Style','text','Parent', gui.plotop_grid,'String','Number of columns:'); % 1E
         uicontrol('Style','text','Parent', gui.plotop_grid,'String','Polarity:'); % 1F
         % second column:
-        plotops.timet_auto = uicontrol('Style','checkbox','Parent', gui.plotop_grid,'String','Auto','callback',@timet_auto,'Value',1); % 2B
         plotops.yscale_auto = uicontrol('Style','checkbox','Parent', gui.plotop_grid,'String','Auto','callback',@yscale_auto,'Value',1); % 2C
         plotops.rows = uicontrol('Style','edit','Parent', gui.plotop_grid,'String',data.elec_n,'callback',@onElecNbox); % 2D
         plotops.columns = uicontrol('Style','edit','Parent', gui.plotop_grid,'String','1','callback',@onElecNbox); % 2E
         plotops.up = uicontrol('Style','checkbox','Parent', gui.plotop_grid,'String','Positive Up?','callback',@up,'Value',1); % 2F
         gui.posup = 1;
         % Set grid sizes
-        set(gui.plotop_grid, 'ColumnSizes',[100 -1],'RowSizes',[30 -1 -1 -1 -1]);
+        set(gui.plotop_grid, 'ColumnSizes',[100 -1],'RowSizes',[30 -1 -1 -1]);
         
-        set(gui.plotop,'Sizes',[20 -1]);
+        set(gui.plotop,'Sizes',[20 20 -1]);
         
         
         %% Create History Panel

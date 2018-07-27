@@ -164,7 +164,7 @@ clearselected = uicontrol('Parent', buttons2, 'Style', 'pushbutton', 'String', '
 % importvbox = uiextras.VBox('Parent',importpanel,'Spacing',5);
 % importbutton = uicontrol('Parent', importvbox, 'Style', 'pushbutton', 'String', 'Import', 'Callback', @temp);
 % importtype = uicontrol('Parent', importvbox, 'Style', 'popup', 'String', {'ERPSS Text','Universal Text','Neuroscan (*.arg)'});
-importexport = uicontrol('Parent',buttons2, 'Style', 'pushbutton', 'String', 'Import/Export', 'Callback', @temp);
+importexport = uicontrol('Parent',buttons2, 'Style', 'pushbutton', 'String', 'Import/Export', 'Callback', @imp_exp);
 buttons4 = uiextras.HBox('Parent', vBox, 'Spacing', 5);
 loadbutton = uicontrol('Parent', buttons4, 'Style', 'pushbutton', 'String', 'Load', 'Callback', @load);
 savebutton = uicontrol('Parent', buttons4, 'Style', 'pushbutton', 'String', 'Save', 'Callback', @savechecked);
@@ -180,6 +180,25 @@ end
 %
 function temp(source,event)
 beep
+
+% Import/Export
+function imp_exp( src, ~ )
+an = questdlg('Would you like to import or export?','Import/Export','Import','Export','Cancel','Cancel');
+if strcmp(an,'Import')
+    [ind,tf] = listdlg('ListString',{'ERPSS Text','Universal Text','Neuroscan (*.arg)'},'SelectionMode','single','PromptString','Please select a type to import from...','Name','Import','OKString','Select');
+    if tf
+        pop_importerp();
+        if ind == 1
+            
+        elseif ind == 2
+            
+        else
+            
+        end
+    end
+elseif strcmp(an,'Export')
+    
+end
 
 % Load ERP
 function load(source,event)
