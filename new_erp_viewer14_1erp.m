@@ -45,6 +45,10 @@ end
 
 global ALLERP;
 
+global tALLERP;
+global tERP;
+global tCURRENTERP;
+
 try
     current_ERP = evalin('base','CURRENTERP');
 catch
@@ -52,6 +56,10 @@ catch
 end
 
 ERP = ALLERP(current_ERP);
+
+tERP = ERP;
+tCURRENTERP = current_ERP;
+tALLERP = ALLERP;
 
 try
     assert(numel(ERP) >= 1)
@@ -118,7 +126,10 @@ redrawERP(); % run second time to sort sizes?
             'matlab_ver'    , matlab_ver, ...
             'bins_chans'    , 0, ...
             'min'           , floor(ERP.times(1)/5)*5, ...
-            'max'           , ceil(ERP.times(end)/5)*5);
+            'max'           , ceil(ERP.times(end)/5)*5, ...
+            'timet_low'     , floor(ERP.times(1)/5)*5, ...
+            'timet_high'    , ceil(ERP.times(end)/5)*5, ...
+            'timet_step'    , (ceil(ERP.times(end)/5)*5-floor(ERP.times(1)/5)*5)/5);
         
         
     end  % handleData
@@ -380,27 +391,29 @@ redrawERP(); % run second time to sort sizes?
         
         gui.plotop = uiextras.VBox('Parent',gui.panel{3}, 'Spacing',1);
         
+        uicontrol('Style','text','Parent', gui.plotop,'String','Time range:'); % 1A
+        
         gui.time_sel = uiextras.HBox('Parent',gui.plotop,'Spacing',1);
-        uicontrol('Style','text','Parent', gui.time_sel,'String','Time range:'); % 1A
         plotops.time_all = uicontrol('Style','checkbox','Parent', gui.time_sel,'String','All','callback',@time_all,'Value',1); % 2A
         uicontrol('Style','text','Parent', gui.time_sel,'String','Start');
         plotops.time_min = uicontrol('Style', 'edit','Parent',gui.time_sel,'String',num2str(data.min),'callback',@min_time_change,'Enable','off');
         uicontrol('Style','text','Parent', gui.time_sel,'String','End');
         plotops.time_max = uicontrol('Style', 'edit','Parent',gui.time_sel,'String',num2str(data.max),'callback',@max_time_change,'Enable','off');
         
-        set(gui.time_sel, 'Sizes', [70 -1 -1 -1 -1 -1])
+        set(gui.time_sel, 'Sizes', [-1 -1 -1 -1 -1])
+        
+        uicontrol('Style','text','Parent', gui.plotop,'String','Time ticks:'); % 1B
         
         gui.ticks = uiextras.HBox('Parent',gui.plotop,'Spacing',1);
-        uicontrol('Style','text','Parent', gui.ticks,'String','Time ticks:'); % 1B
         plotops.timet_auto = uicontrol('Style','checkbox','Parent', gui.ticks,'String','Auto','callback',@timet_auto,'Value',1); % 2B
         uicontrol('Style','text','Parent', gui.ticks,'String','Low');
         plotops.timet_low = uicontrol('Style', 'edit','Parent',gui.ticks,'String',num2str(data.min),'callback',@low_ticks_change,'Enable','off');
         uicontrol('Style','text','Parent', gui.ticks,'String','High');
         plotops.timet_high = uicontrol('Style', 'edit','Parent',gui.ticks,'String',num2str(data.max),'callback',@high_ticks_change,'Enable','off');
         uicontrol('Style','text','Parent', gui.ticks,'String','Step');
-        plotops.timet_high = uicontrol('Style', 'edit','Parent',gui.ticks,'String',num2str(data.max-data.min),'callback',@ticks_step_change,'Enable','off');
+        plotops.timet_step = uicontrol('Style', 'edit','Parent',gui.ticks,'String',num2str((data.max-data.min)/5),'callback',@ticks_step_change,'Enable','off');
         
-        set(gui.ticks, 'Sizes', [70 50 -1 -1 -1 -1 -1 -1]);
+        set(gui.ticks, 'Sizes', [50 -1 -1 -1 -1 -1 -1]);
         
         gui.plotop_grid = uiextras.Grid('Parent',gui.plotop,'Spacing',1);
         % Columns are filled first. First column:
@@ -417,7 +430,7 @@ redrawERP(); % run second time to sort sizes?
         % Set grid sizes
         set(gui.plotop_grid, 'ColumnSizes',[100 -1],'RowSizes',[30 -1 -1 -1]);
         
-        set(gui.plotop,'Sizes',[20 20 -1]);
+        set(gui.plotop,'Sizes',[20 20 20 20 -1]);
         
         
         %% Create History Panel
@@ -523,6 +536,8 @@ redrawERP(); % run second time to sort sizes?
         
         
     end % updateInterface
+    
+    
 
     function redrawERP()
         % Draw a demo ERP into the axes provided
@@ -613,9 +628,7 @@ redrawERP(); % run second time to sort sizes?
             if tmax > numel(ERP.times)
                 tmax = numel(ERP.times);
             end
-            
-            sf = ERP.times(2)-ERP.times(1);
-            
+                        
             plot_erp_data = nan(tmax-tmin+1);
             
             if data.bins_chans == 0
@@ -642,7 +655,8 @@ redrawERP(); % run second time to sort sizes?
             
             pb_ax(i) = axes('Parent', pb(i),'Color','none');
             set(pb_ax(i),'XLim',[data.min data.max]);
-            pb_here = plot(pb_ax(i),ERP.times(tmin:tmax),plot_erp_data);
+            ts = ERP.times(tmin:tmax);
+            pb_here = plot(pb_ax(i),ts,plot_erp_data);
             
             newlim = [];
             if gui.posup == 1
@@ -651,6 +665,8 @@ redrawERP(); % run second time to sort sizes?
                 newlim = [yticks(end)*-2 yticks(1)*-2];
             end
             
+            xticks = (data.timet_low:data.timet_step:data.timet_high);
+                        
             % some options currently only work post Matlab R2016a
             if data.matlab_ver >= 2016
                 set(pb_ax(i),'FontSize',tsize,'FontWeight','bold','XAxisLocation','origin',...
@@ -665,6 +681,10 @@ redrawERP(); % run second time to sort sizes?
                 
                 hline(0,'k'); % backup xaxis
                 
+            end
+            
+            if plotops.timet_auto.Value == 0
+                set(pb_ax(i), 'XTickLabel',xticks,'XTick',xticks)
             end
             
             % fix scaling shrinkage
@@ -927,6 +947,7 @@ redrawERP(); % run second time to sort sizes?
             if i ~= 1 && ~all_selected
                 data.bins(1,end+1) = i - 1;
             else
+                src.Value = 1;
                 carray = src.String;
                 carray(1) = [];
                 data.bins = str2num(cell2mat(carray));
@@ -1068,8 +1089,10 @@ redrawERP(); % run second time to sort sizes?
         try
             if str2double(src.String) >= data.max
                 beep
-                src.String = num2str(ERP.times(1));
+                src.String = floor(ERP.times(1)/5)*5;
                 disp('Min input must be smaller than max.');
+                data.min = floor(ERP.times(1)/5)*5;
+                redrawERP()
             else
                 data.min = str2double(src.String);
             end
@@ -1077,8 +1100,8 @@ redrawERP(); % run second time to sort sizes?
             redrawERP()
         catch
             beep
-            src.String = ERP.times(1);
-            data.min = ERP.times(1);
+            src.String = floor(ERP.times(1)/5)*5;
+            data.min = floor(ERP.times(1)/5)*5;
             disp('Could not parse input');
             updateInterface()
             redrawERP()
@@ -1089,8 +1112,10 @@ redrawERP(); % run second time to sort sizes?
         try
             if str2double(src.String) <= data.min
                 beep
-                src.String = ERP.times(end);
+                src.String = ceil(ERP.times(end)/5)*5;
                 disp('Max input must be greater than min.');
+                data.max = ceil(ERP.times(end)/5)*5;
+                redrawERP()
             else
                 data.max = str2double(src.String);
             end
@@ -1098,8 +1123,8 @@ redrawERP(); % run second time to sort sizes?
             redrawERP()
         catch
             beep
-            src.String = ERP.times(end);
-            data.max = ERP.times(end);
+            src.String = ceil(ERP.times(end)/5)*5;
+            data.max = ceil(ERP.times(end)/5)*5;
             disp('Could not parse input');
             updateInterface()
             redrawERP()
@@ -1125,4 +1150,99 @@ redrawERP(); % run second time to sort sizes?
             gui.lp_halfpow.Enable = 'Off';
         end
     end
-end %EOF
+
+    function timet_auto( src, ~ )
+        if src.Value == 1
+            plotops.timet_low.Enable = 'off';
+            plotops.timet_high.Enable = 'off';
+            plotops.timet_step.Enable = 'off';
+            plotops.timet_low.String = data.min;
+            plotops.timet_high.String = data.max;
+            plotops.timet_step.String = data.max-data.min;
+        else
+            plotops.timet_low.Enable = 'on';
+            plotops.timet_high.Enable = 'on';
+            plotops.timet_step.Enable = 'on';
+        end
+        redrawERP()
+    end
+
+    function low_ticks_change( src, ~ )
+        clear i
+        val = 1i;
+        try
+            val = str2double(src.String);
+        catch
+            beep;
+            disp('Input must be a number.');
+            src.String = data.min;
+            data.timet_low = data.min;
+        end
+        if val ~= 1i
+            if val < data.timet_high
+                data.timet_low = val;
+            else
+                beep;
+                disp('Low must be lower than high');
+                src.String = data.min;
+                data.timet_low = data.min;
+            end
+        end
+        redrawERP()
+    end
+    
+    function high_ticks_change( src, ~ )
+        clear i
+        val = 1i;
+        try
+            val = str2double(src.String);
+        catch
+            beep;
+            disp('Input must be a number.');
+            src.String = data.max;
+            data.timet_high = data.max;
+        end
+        if val ~= 1i
+            if val > data.timet_low
+                data.timet_high = val;
+            else
+                beep;
+                disp('High must be higher than low');
+                src.String = data.max;
+                data.timet_high = data.max;
+            end
+        end
+        redrawERP()
+    end
+
+    function ticks_step_change( src, ~ )
+        clear i
+        val = 1i;
+        try
+            val = str2double(src.String);
+        catch
+            beep;
+            disp('Input must be a number.');
+            src.String = data.min;
+            data.timet_low = data.min;
+        end
+        if val ~= 1i
+            if val <= data.timet_high-data.timet_low
+                if val >= 0
+                    data.timet_step = val;
+                else
+                    beep;
+                    disp('Step must be positive');
+                    src.String = data.max-data.min;
+                    data.timet_step = data.max-data.min;
+                end
+            else
+                beep;
+                disp('Step must be contained within range');
+                src.String = data.max-data.min;
+                data.timet_step = data.max-data.min;
+            end
+        end
+        redrawERP()
+    end
+end % EOF
