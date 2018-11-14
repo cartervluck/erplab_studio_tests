@@ -65,7 +65,7 @@ end
 
 observe_ERPDAT = o_ERPDAT;
 observe_ERPDAT.ALLERP = ALLERP;
-observe_ERPDAT.CURRENTERP = current_ERP;
+observe_ERPDAT.CURRENTERP = CURRENTERP;
 observe_ERPDAT.ERP = ERP;
 
 %addlistener(observe_ERPDAT,'ERP_change',@redrawERP_CB);
@@ -1518,11 +1518,13 @@ redrawERP();
     end
 
     function indexERP( ~, ~ )
-        assignin('base','CURRENTERP',observe_ERPDAT.CURRENTERP);
-        if ~strcmp(observe_ERPDAT.CURRENTERP,CURRENTERP)
-            CURRENTERP = observe_ERPDAT.CURRENTERP;
+        if evalin('base','CURRENTERP') ~= observe_ERPDAT.CURRENTERP
+            assignin('base','CURRENTERP',observe_ERPDAT.CURRENTERP);
+            if ~strcmp(observe_ERPDAT.CURRENTERP,CURRENTERP)
+                CURRENTERP = observe_ERPDAT.CURRENTERP;
+            end
+            observe_ERPDAT.ERP = observe_ERPDAT.ALLERP(observe_ERPDAT.CURRENTERP);
         end
-        observe_ERPDAT.ERP = observe_ERPDAT.ALLERP(observe_ERPDAT.CURRENTERP);
     end
 
     function allErpChanged(~,~)
@@ -1563,10 +1565,12 @@ redrawERP();
     end
 
     function updateObserve(~,~)
-        observe_ERPDAT.ALLERP = ALLERP;
-        a = evalin('base','ERP');
-        if ~strcmp(observe_ERPDAT.ERP.history,a.history)
-            observe_ERPDAT.CURRENTERP = CURRENTERP;
+        a = evalin('base','CURRENTERP');
+        if ~strcmp(observe_ERPDAT.CURRENTERP,a)
+            observe_ERPDAT.CURRENTERP = evalin('base','CURRENTERP');
         end
+        observe_ERPDAT.ALLERP = ALLERP;
+        updateInterface()
+        redrawERP()
     end
 end % EOF
