@@ -1529,6 +1529,7 @@ redrawERP();
 
     function allErpChanged(~,~)
         assignin('base','ALLERP',observe_ERPDAT.ALLERP);
+        updatemenuerp(ALLERP)
     end
 
     function line_selected(~,~,i,nlin)

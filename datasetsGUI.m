@@ -208,6 +208,7 @@ varargout{1} = box;
         [~,bc] = size(observe_ERPDAT.ALLERP);
         [observe_ERPDAT.ERP, observe_ERPDAT.ALLERP, ERPCOM] = pop_loaderp('');
         [observe_ERPDAT.ERP, ALLERPCOM] = erphistory(observe_ERPDAT.ERP, ALLERPCOM, ERPCOM);
+        % observe_ERPDAT.CURRENTERP = find(strcmp({observe_ERPDAT.ALLERP.history},{observe_ERPDAT.ERP.history}));
         if (~isequal([1,bc], size(observe_ERPDAT.ALLERP)))
             getDatasets()
             datasets = sortdata(datasets);
@@ -502,23 +503,23 @@ varargout{1} = box;
             end
         end
         
-        clear i
+        clear i_t
         clear cond
-        i = 1;
+        i_t = 1;
         [nr,~] = size(datasets);
-        cond = i <= nr;
+        cond = i_t <= nr;
         rinds = [];
         inds = [];
         sub = [];
         while cond
-            if ismember(cell2mat(datasets(i,2)),ndsns)
+            if ismember(cell2mat(datasets(i_t,2)),ndsns)
                 clear j
                 [nnr,~] = size(datasets);
                 for j = 1:nnr
-                    if cell2mat(datasets(j,3)) == cell2mat(datasets(i,2))
-                        datasets(j,3) = datasets(i,3);
+                    if cell2mat(datasets(j,3)) == cell2mat(datasets(i_t,2))
+                        datasets(j,3) = datasets(i_t,3);
                     end
-                    if cell2mat(datasets(j,2)) > cell2mat(datasets(i,2))
+                    if cell2mat(datasets(j,2)) > cell2mat(datasets(i_t,2))
                         sub(end+1,1) = cell2mat(datasets(j,2));
                     end
                 end
@@ -526,7 +527,7 @@ varargout{1} = box;
                 [~,cerp] = size(observe_ERPDAT.ALLERP);
                 erpinds = [];
                 for k = 1:cerp
-                    if strcmp(observe_ERPDAT.ALLERP(1,k).filename,cell2mat(datasets(i,4)))&&strcmp(observe_ERPDAT.ALLERP(1,k).filepath,cell2mat(datasets(i,5)))
+                    if strcmp(observe_ERPDAT.ALLERP(1,k).filename,cell2mat(datasets(i_t,4)))&&strcmp(observe_ERPDAT.ALLERP(1,k).filepath,cell2mat(datasets(i_t,5)))
                         erpinds(end+1) = k;
                     end
                 end
@@ -534,12 +535,12 @@ varargout{1} = box;
                 for k = erpinds
                     observe_ERPDAT.ALLERP(:,k) = [];
                 end
-                datasets(i,:) = [];
+                %datasets(i_t,:) = [];
             else
-                i = i + 1;
+                i_t = i_t + 1;
             end
             [nr,~] = size(datasets);
-            if i > nr
+            if i_t > nr
                 cond = false;
             end
         end
