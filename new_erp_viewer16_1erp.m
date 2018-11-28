@@ -65,7 +65,7 @@ end
 
 observe_ERPDAT = o_ERPDAT;
 observe_ERPDAT.ALLERP = ALLERP;
-observe_ERPDAT.CURRENTERP = CURRENTERP;
+observe_ERPDAT.CURRENTERP = current_ERP;
 observe_ERPDAT.ERP = ERP;
 
 %addlistener(observe_ERPDAT,'ERP_change',@redrawERP_CB);
@@ -1043,7 +1043,19 @@ redrawERP();
 
     function onErpChanged( ~, ~ )
         % Just change observe_ERPDAT.CURRENTERP
-        observe_ERPDAT.ERP = observe_ERPDAT.ALLERP(observe_ERPDAT.CURRENTERP);
+        %observe_ERPDAT.ERP = observe_ERPDAT.ALLERP(observe_ERPDAT.CURRENTERP);
+        cond = 0;
+        for i = 1:numel(observe_ERPDAT.ALLERP)
+            if strcmp(observe_ERPDAT.ALLERP(i).history,observe_ERPDAT.ERP.history(1:end-1,1:end)) || strcmp(observe_ERPDAT.ALLERP(i).history,observe_ERPDAT.ERP.history)
+                if observe_ERPDAT.CURRENTERP ~= i
+                    observe_ERPDAT.CURRENTERP = i;
+                end
+                cond = 1;
+           end
+        end
+        if ~cond
+            return
+        end
         brange = cell(observe_ERPDAT.ERP.nbin+1,1);
         brange(1) = {'ALL'};
         for i = 1:observe_ERPDAT.ERP.nbin
@@ -1524,6 +1536,9 @@ redrawERP();
                 CURRENTERP = observe_ERPDAT.CURRENTERP;
             end
             observe_ERPDAT.ERP = observe_ERPDAT.ALLERP(observe_ERPDAT.CURRENTERP);
+        %else
+        %    updateInterface()
+        %    redrawERP()
         end
     end
 

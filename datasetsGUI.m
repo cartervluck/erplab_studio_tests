@@ -209,6 +209,7 @@ varargout{1} = box;
         [observe_ERPDAT.ERP, observe_ERPDAT.ALLERP, ERPCOM] = pop_loaderp('');
         [observe_ERPDAT.ERP, ALLERPCOM] = erphistory(observe_ERPDAT.ERP, ALLERPCOM, ERPCOM);
         % observe_ERPDAT.CURRENTERP = find(strcmp({observe_ERPDAT.ALLERP.history},{observe_ERPDAT.ERP.history}));
+        observe_ERPDAT.CURRENTERP = evalin('base','CURRENTERP;');
         if (~isequal([1,bc], size(observe_ERPDAT.ALLERP)))
             getDatasets()
             datasets = sortdata(datasets);
