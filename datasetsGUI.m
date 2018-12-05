@@ -512,29 +512,31 @@ varargout{1} = box;
         rinds = [];
         inds = [];
         sub = [];
+        
+        %{
         while cond
             if ismember(cell2mat(datasets(i_t,2)),ndsns)
                 clear j
                 [nnr,~] = size(datasets);
                 for j = 1:nnr
-                    if cell2mat(datasets(j,3)) == cell2mat(datasets(i_t,2))
-                        datasets(j,3) = datasets(i_t,3);
+                    if cell2mat(datasets(j,3)) == cell2mat(datasets(i_t,2)) % This dataset is a child of dataset being cleared
+                        datasets(j,3) = datasets(i_t,3); % Set it's parent to the parent of the one getting cleared
                     end
-                    if cell2mat(datasets(j,2)) > cell2mat(datasets(i_t,2))
-                        sub(end+1,1) = cell2mat(datasets(j,2));
+                    if cell2mat(datasets(j,2)) > cell2mat(datasets(i_t,2)) % If it comes after the one being cleared
+                        sub(end+1,1) = cell2mat(datasets(j,2)); % Append the number of this dataset to sub
                     end
                 end
                 clear k
                 [~,cerp] = size(observe_ERPDAT.ALLERP);
                 erpinds = [];
-                for k = 1:cerp
+                for k = 1:cerp % Iterate through ALLERP with k. Find one with matching file name and path
                     if strcmp(observe_ERPDAT.ALLERP(1,k).filename,cell2mat(datasets(i_t,4)))&&strcmp(observe_ERPDAT.ALLERP(1,k).filepath,cell2mat(datasets(i_t,5)))
-                        erpinds(end+1) = k;
+                        erpinds(end+1) = k; % append it to array
                     end
                 end
                 erpinds = sort(erpinds, 'descend');
                 for k = erpinds
-                    observe_ERPDAT.ALLERP(:,k) = [];
+                    observe_ERPDAT.ALLERP(:,k) = []; % Clear all ERPsets with this file
                 end
                 %datasets(i_t,:) = [];
             else
@@ -545,6 +547,7 @@ varargout{1} = box;
                 cond = false;
             end
         end
+        
         
         datasets = sortrows(datasets,2);
         sub = sort(sub);
@@ -562,8 +565,34 @@ varargout{1} = box;
                 end
             end
         end
+        %}
+        
+        i_t = nr;
+        while i_t > 0 % Iterate through datasets backwards
+            if ismember(cell2mat(datasets(i_t,3)),ndsns) % Find children of deleted datasets
+                for set = 1:nr
+                    if cell2mat(datasets(set,2)) == cell2mat(datasets(i_t,3)) % Find parent
+                        datasets(i_t,3) = datasets(sets,3); % Old grandparent -> new parent
+                    end
+                end
+            end
+            i_t = i_t - 1;
+        end
+        
+        i_t = nr;
+        while i_t > 0 % Iterate through datasets backwards
+            if ismember(cell2mat(datasets(i_t,2)),ndsns) % Find deleted datasets
+                for erp = numel(observe_ERPDAT.ALLERP):-1:1
+                    if strcmp(observe_ERPDAT.ALLERP(1,erp).filename,cell2mat(datasets(i_t,4)))&&strcmp(observe_ERPDAT.ALLERP(1,erp).filepath,cell2mat(datasets(i_t,5)))
+                        observe_ERPDAT.ALLERP(:,erp) = [];
+                    end
+                end
+            end
+            i_t = i_t - 1;
+        end
         
         datasets = sortdata(datasets);
+        selectedData = observe_ERPDAT.CURRENTERP;
         drawui();
     end
 
