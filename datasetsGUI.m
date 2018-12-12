@@ -582,9 +582,16 @@ varargout{1} = box;
         i_t = nr;
         while i_t > 0 % Iterate through datasets backwards
             if ismember(cell2mat(datasets(i_t,2)),ndsns) % Find deleted datasets
+                %if i_t == selectedData
+                %    selectedData = 1;
+                %end
                 for erp = numel(observe_ERPDAT.ALLERP):-1:1
                     if strcmp(observe_ERPDAT.ALLERP(1,erp).filename,cell2mat(datasets(i_t,4)))&&strcmp(observe_ERPDAT.ALLERP(1,erp).filepath,cell2mat(datasets(i_t,5)))
                         observe_ERPDAT.ALLERP(:,erp) = [];
+                        if i_t == selectedData
+                            observe_ERPDAT.CURRENTERP = 1;
+                        end
+                        break
                     end
                 end
             end
