@@ -590,6 +590,7 @@ varargout{1} = box;
                         observe_ERPDAT.ALLERP(:,erp) = [];
                         if i_t == selectedData
                             observe_ERPDAT.CURRENTERP = 1;
+                            observe_ERPDAT.ERP = observe_ERPDAT.ALLERP(observe_ERPDAT.CURRENTERP);
                         end
                         break
                     end
